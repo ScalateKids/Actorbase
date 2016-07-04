@@ -31,7 +31,7 @@ Actorbase, as stated before, aims to be a Key-value NoSQL database that follows 
 
 ![alt text][design]
 
-[design]: https://github.com/ScalateKids/Actorbase-Documents/blob/master/img/RQ/DevManual/ClusterP.png
+[design]: https://github.com/ScalateKids/Actorbase-Documents/blob/master/img/RQ/DevManual/ClusterPmd.png
 
 </br>
 
