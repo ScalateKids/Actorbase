@@ -18,8 +18,7 @@ libraryDependencies ++= Seq(
   "com.github.t3hnar" % "scala-bcrypt_2.10" % "2.6",
   "com.github.romix.akka" %% "akka-kryo-serialization" % "0.4.1",
   "org.apache.maven.plugins" % "maven-shade-plugin" % "2.4.3",
-  "ch.qos.logback" % "logback-classic" % "1.1.3",
-  "io.spray" % "spray-caching_2.11" % "1.3.3"
+  "ch.qos.logback" % "logback-classic" % "1.1.3"
 )
 
 javaOptions ++= Seq("-Xmx2048m")
