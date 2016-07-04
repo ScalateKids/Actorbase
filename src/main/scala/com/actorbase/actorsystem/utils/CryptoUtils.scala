@@ -33,6 +33,7 @@ import java.security.{InvalidKeyException, NoSuchAlgorithmException}
 import java.util.zip.{ DataFormatException, Deflater, DeflaterOutputStream, Inflater, InflaterInputStream }
 import javax.crypto.{BadPaddingException, Cipher, IllegalBlockSizeException, NoSuchPaddingException}
 import javax.crypto.spec.SecretKeySpec
+import com.typesafe.config.ConfigFactory
 
 /**
   * Cryptography service object, this object is used to crypt data before saving
@@ -40,9 +41,10 @@ import javax.crypto.spec.SecretKeySpec
   */
 object CryptoUtils {
 
+  val config = ConfigFactory.getConfig("persistence")
   /** configuration init */
-  val Algorithm = "AES"
-  val Transformation = "AES"
+  val Algorithm = config getString "encryption-algorithm"
+  val Transformation = config getString "encryption-algorithm"
 
   @throws(classOf[IOException])
   def compress(data: Array[Byte]): Array[Byte] = {
