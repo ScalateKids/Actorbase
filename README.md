@@ -52,8 +52,25 @@ cluster network.
 
 ## Quick start
 
-On every node on the cluster run
+The project is built using sbt, which is available on Linux, OSX and Windows as
+well. Just clone the repository and run it
 ```sh
+$ git clone https://github.com/ScalateKids/Actorbase.git
+$ cd Actorbase
+$ sbt "run-main com.actorbase.actorsystem.actors.httpserver.HTTPServer -h
+<hostname> -p <port>"
+```
+Running just sbt run will result in a fallback to localhost and 9999 as port,
+it is also possible to set exposed port to listen for connections and specify
+different seeds:
+```sh
+$ sbt "run-main com.actorbase.actorsystem.actors.httpserver.HTTPServer -h
+<hostname> -p <port>" -Dexposed-port=<listening-port>
+-Dseed-host=<seed-hostname>
+```
+Finally it is possible to build a fat jar
+```sh
+$ sbt assembly
 $ java -jar actorbase.jar -h <hostname> -p <port>
 ```
 missing values for hostname and port will result in a fallback (localhost as hostname and 9999 as port)
