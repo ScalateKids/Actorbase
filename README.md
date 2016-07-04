@@ -55,15 +55,13 @@ well. Just clone the repository and run it
 ```sh
 $ git clone https://github.com/ScalateKids/Actorbase.git
 $ cd Actorbase
-$ sbt "run-main com.actorbase.actorsystem.actors.httpserver.HTTPServer -h
-<hostname> -p <port>"
+$ sbt "run-main com.actorbase.actorsystem.actors.httpserver.HTTPServer -h <hostname> -p <port>"
 ```
 Running just sbt run will result in a fallback to localhost and 9999 as port,
 it is also possible to set exposed port to listen for connections and specify
 different seeds:
 ```sh
-$ sbt "run-main com.actorbase.actorsystem.actors.httpserver.HTTPServer -h
-<hostname> -p <port>" -Dexposed-port=<listening-port>
+$ sbt "run-main com.actorbase.actorsystem.actors.httpserver.HTTPServer -h <hostname> -p <port>" -Dexposed-port=<listening-port>
 -Dseed-host=<seed-hostname>
 ```
 Finally it is possible to build a fat jar
