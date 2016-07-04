@@ -28,11 +28,9 @@ Relational databases fails to guarantee ACID properties while scaling in a distr
 Actorbase, as stated before, aims to be a Key-value NoSQL database that follows the actor model.
 
 ## Design
-
-![alt text][design]
-
-[design]: https://github.com/ScalateKids/Actorbase-Documents/blob/master/img/RQ/DevManual/ClusterPmd.png
-
+<p align="center">
+<img src="https://github.com/ScalateKids/Actorbase-Documents/blob/master/img/RQ/DevManual/ClusterPmd.png">
+</p>
 </br>
 
 Actorbase is an application conceived to be used in a distributed fashion,
