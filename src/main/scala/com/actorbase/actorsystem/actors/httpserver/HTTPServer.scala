@@ -90,13 +90,16 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
         x.listFiles.filter(_.isFile).foreach { x =>
           x match {
             case meta if meta.getName.endsWith("actbmeta") =>
+              println("metafile "+CryptoUtils.decrypt[Map[String, String]](config getString "encryption-key", meta))
               val metaData = CryptoUtils.decrypt[Map[String, String]](config getString "encryption-key", meta)
               metaData get "collection" map (c => name = c)
               metaData get "owner" map (o => owner = o)
               main ! CreateCollection(owner, ActorbaseCollection(name, owner))
             case user if (user.getName == "usersdata.shadow") =>
+              println("user file "+CryptoUtils.decrypt[Map[String, String]](config getString "encryption-key", user))
               usersmap ++= CryptoUtils.decrypt[Map[String, String]](config getString "encryption-key", user)
             case contributor if (contributor.getName == "contributors.shadow") =>
+              println("contributors file "+CryptoUtils.decrypt[Map[String, List[(String, Boolean)]]](config getString "encryption-key", contributor))
               contributors ++= CryptoUtils.decrypt[Map[String, List[(String, Boolean)]]](config getString "encryption-key", contributor)
             case _ => dataShard ++= CryptoUtils.decrypt[Map[String, Array[Byte]]](config getString "encryption-key", x)
           }
@@ -106,9 +109,12 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
         dataShard = dataShard.empty
       }
 
-      authProxy ! Clean
-
-      usersmap map ( x => authProxy ! Init(x._1, x._2) )
+      //authProxy ! Clean
+      if(usersmap.empty){
+        authProxy ! Init("admin", "Actorb4se".bcrypt(generateSalt))
+      }
+      else
+        usersmap map ( x => authProxy ! Init(x._1, x._2) )
 
       contributors.foreach {
         case (k, v) =>
