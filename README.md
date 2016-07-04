@@ -3,7 +3,7 @@
 
 ![alt text][logo]
 
-[logo]: https://github.com/ScalateKids/Actorbase-Documents/blob/master/img/ablogo.png
+[logo]: https://github.com/ScalateKids/Actorbase-Documents/blob/master/img/ablogomd.png
 
 Created by Scalatekids.
 
@@ -26,7 +26,7 @@ Relational databases fails to guarantee ACID properties while scaling in a distr
 
 ### Actorbase
 
-Actorbase, as stated before, aims to be a Key-value NoSQL database that follows the actor model. 
+Actorbase, as stated before, aims to be a Key-value NoSQL database that follows the actor model.
 
 ## Debug instructions
 To lauch actorbase as a cluster application
