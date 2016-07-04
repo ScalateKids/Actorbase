@@ -111,6 +111,7 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
 
       //authProxy ! Clean
       if(usersmap.isEmpty){
+        println("no user found, creating admin")
         import com.github.t3hnar.bcrypt._
         authProxy ! Init("admin", "Actorb4se".bcrypt(generateSalt))
       }

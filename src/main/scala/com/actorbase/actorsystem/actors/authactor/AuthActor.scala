@@ -167,6 +167,7 @@ class AuthActor extends Actor with ActorLogging {
           println(" ho già gli utenti, coglione")
         }
         else{
+          println("init message, adding "+username+" "+password)
           context become running (profiles + Profile(username, password, Set.empty[ActorbaseCollection]))
         }
       }
