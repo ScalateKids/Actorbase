@@ -41,7 +41,7 @@ import com.typesafe.config.ConfigFactory
   */
 object CryptoUtils {
 
-  val config = ConfigFactory.getConfig("persistence")
+  val config = ConfigFactory.load().getConfig("persistence")
   /** configuration init */
   val Algorithm = config getString "encryption-algorithm"
   val Transformation = config getString "encryption-algorithm"
