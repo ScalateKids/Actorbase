@@ -89,8 +89,9 @@ class AuthActor extends Actor with ActorLogging {
     * with a default Set of Profiles, letting him receive a variety of messages
     * explained in the running method scaladoc
     */
-  override def receive = running(Set[Profile](Profile("admin", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection]),
-    Profile("anonymous", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection])))
+  /*override def receive = running(Set[Profile](Profile("admin", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection]),
+    Profile("anonymous", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection])))*/
+    override def receive = running(Set[Profile](Profile("anonymous", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection])))
 
   /**
     * Method used to persist the users data to filesystem
@@ -160,8 +161,17 @@ class AuthActor extends Actor with ActorLogging {
         * @param username a String representing the username of the user
         * @param password a String representing the password of the user
         */
-      case Init(username, password) =>
-        context become running (profiles + Profile(username, password, Set.empty[ActorbaseCollection]))
+      case Init(username, password) =>{
+        //context become running (profiles + Profile(username, password, Set.empty[ActorbaseCollection]))
+    /*    if(profiles.size > 0){
+          println(" ho già gli utenti, coglione")
+        }
+        else{*/
+          println("init message, adding "+username+" "+password)
+          context become running (profiles + Profile(username, password, Set.empty[ActorbaseCollection]))
+        //}
+      }
+
 
       /**
         * Add a pair username-password generating an hash to store the password,
