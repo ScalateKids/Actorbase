@@ -91,7 +91,7 @@ class AuthActor extends Actor with ActorLogging {
     */
   /*override def receive = running(Set[Profile](Profile("admin", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection]),
     Profile("anonymous", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection])))*/
-    override def receive = running(Set[Profile](Profile("anonymous", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection]))
+    override def receive = running(Set[Profile](Profile("anonymous", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection])))
 
   /**
     * Method used to persist the users data to filesystem
