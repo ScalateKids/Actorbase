@@ -110,7 +110,8 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
       }
 
       //authProxy ! Clean
-      if(usersmap.empty){
+      if(usersmap.isEmpty){
+        import com.github.t3hnar.bcrypt._
         authProxy ! Init("admin", "Actorb4se".bcrypt(generateSalt))
       }
       else
