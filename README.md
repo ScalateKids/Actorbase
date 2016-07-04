@@ -1,9 +1,8 @@
 [![Build Status](https://travis-ci.org/ScalateKids/Actorbase-Server.svg?branch=master)](https://travis-ci.org/ScalateKids/Actorbase-Server)
 
-
-![alt text][logo]
-
-[logo]: https://github.com/ScalateKids/Actorbase-Documents/blob/master/img/ablogomd.png
+<div align="center">
+ <img src="https://github.com/ScalateKids/Actorbase-Documents/blob/master/img/ablogomd.png" />
+</div>
 
 Created by Scalatekids.
 
