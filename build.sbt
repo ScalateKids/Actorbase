@@ -1,6 +1,10 @@
-name := "Actorbase-Server"
+name := "actorbase"
+
 version := "1.0"
+
 scalaVersion := "2.11.8"
+
+organization := "com.actorbase"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.4.6",
@@ -23,11 +27,7 @@ libraryDependencies ++= Seq(
 
 javaOptions ++= Seq("-Xmx2048m")
 
-// addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.5")
-
-// addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.1.0")
-
-assemblyJarName in assembly := "Actorbase-Server.jar"
+assemblyJarName in assembly := "actorbase.jar"
 mainClass in assembly := Some("com.actorbase.actorsystem.actors.httpserver.HTTPServer")
 test in assembly := {}
 assemblyMergeStrategy in assembly := {
