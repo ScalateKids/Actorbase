@@ -141,7 +141,6 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
       log.warning("Directory not found!")
       import com.github.t3hnar.bcrypt._
       authProxy ! Init("admin", "Actorb4se".bcrypt(generateSalt))
-      authProxy ! Init("anonymous", "Actorb4se".bcrypt(generateSalt))        
     }
 
     authProxy ! Save
