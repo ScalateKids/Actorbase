@@ -1,11 +1,16 @@
 [![Build Status](https://travis-ci.org/ScalateKids/Actorbase-Server.svg?branch=master)](https://travis-ci.org/ScalateKids/Actorbase-Server)
 
+<div align="center">
+ <img src="https://github.com/ScalateKids/Actorbase-Documents/blob/master/img/ablogomd.png" />
 
-![alt text][logo]
+</div>
 
-[logo]: https://github.com/ScalateKids/Actorbase-Documents/blob/master/img/ablogomd.png
+<p align="center">Created by Scalatekids
+</p>
 
-Created by Scalatekids.
+<p></p>
+<p></p>
+<p></p>
 
 Actorbase is a key-value NoSQL database build upon the actor model for concurrency, hence the name "Actorbase".
 
