@@ -163,13 +163,13 @@ class AuthActor extends Actor with ActorLogging {
         */
       case Init(username, password) =>{
         //context become running (profiles + Profile(username, password, Set.empty[ActorbaseCollection]))
-        if(profiles.size > 0){
+    /*    if(profiles.size > 0){
           println(" ho già gli utenti, coglione")
         }
-        else{
+        else{*/
           println("init message, adding "+username+" "+password)
           context become running (profiles + Profile(username, password, Set.empty[ActorbaseCollection]))
-        }
+        //}
       }
 
 
