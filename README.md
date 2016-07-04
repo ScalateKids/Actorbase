@@ -4,13 +4,7 @@
  <img src="https://github.com/ScalateKids/Actorbase-Documents/blob/master/img/ablogomd.png" />
 
 </div>
-
-<p align="center">Created by Scalatekids
-</p>
-
-<p></p>
-<p></p>
-<p></p>
+ </br>
 
 Actorbase is a key-value NoSQL database build upon the actor model for concurrency, hence the name "Actorbase".
 
@@ -33,17 +27,39 @@ Relational databases fails to guarantee ACID properties while scaling in a distr
 
 Actorbase, as stated before, aims to be a Key-value NoSQL database that follows the actor model.
 
-## Debug instructions
-To lauch actorbase as a cluster application
-### Node A
+## Design
+
+![alt text][design]
+
+[design]: https://github.com/ScalateKids/Actorbase-Documents/blob/master/img/RQ/DevManual/ClusterP.png
+
+</br>
+
+Actorbase is an application conceived to be used in a distributed fashion,
+balancing load between multiple nodes as shown above.
+
+For every incoming connection a dedicated actor, named clientactor,
+is spawned;
+
+it is responsible for all incoming requests from the
+client that is connected, and his main role is to forward these requests directly to the
+main actors equally distributed across the nodes of a
+cluster.
+
+In this way, with main actors breeding
+their own hierarchy of subordinates, all incoming data is spread across the
+cluster network.
+
+## Quick start
+
+On every node on the cluster run
 ```sh
-$ sbt run -Dlisten-on=<ip-address>
+$ java -jar actorbase.jar -h <hostname> -p <port>
 ```
-### Node B
-```sh
-$ sbt run -Dlisten-on=<ip-address> -Dexposed-port=9998 -Dclustering-port=2501
-```
-### Server-side configuration
-```sh
-$ sbt
-```
+missing values for hostname and port will result in a fallback (localhost as hostname and 9999 as port)
+
+For further details about configuration, see the wiki:
+
+## License
+
+See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
