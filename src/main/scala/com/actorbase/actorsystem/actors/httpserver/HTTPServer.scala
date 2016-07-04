@@ -110,13 +110,8 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
       }
 
       //authProxy ! Clean
-      if(usersmap.isEmpty){
-        println("no user found, creating admin")
-        import com.github.t3hnar.bcrypt._
-        authProxy ! Init("admin", "Actorb4se".bcrypt(generateSalt))
-      }
-      else
-        usersmap map ( x => authProxy ! Init(x._1, x._2) )
+
+      usersmap map ( x => authProxy ! Init(x._1, x._2) )
 
       contributors.foreach {
         case (k, v) =>
@@ -142,7 +137,12 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
           f.delete()
       }
 
-    } else log.warning("Directory not found!")
+    } else {
+      log.warning("Directory not found!")
+      import com.github.t3hnar.bcrypt._
+      authProxy ! Init("admin", "Actorb4se".bcrypt(generateSalt))
+      authProxy ! Init("anonymous", "Actorb4se".bcrypt(generateSalt))        
+    }
 
     authProxy ! Save
 
