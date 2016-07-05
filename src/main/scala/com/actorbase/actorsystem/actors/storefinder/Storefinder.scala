@@ -122,7 +122,7 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
         * @param key a String representing the key of the item to be retrieved
         */
       case Get(key) =>
-        println("SF: get "+key)
+        println("SF: get "+key+" from "+collection)
         val uuid = collection.getUUID
         storekeepers forward (ConsistentHashableEnvelope(message = GetItem(key, uuid), hashKey = key+uuid))
 
