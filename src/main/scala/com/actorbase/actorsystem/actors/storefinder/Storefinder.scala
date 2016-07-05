@@ -50,6 +50,8 @@ import com.typesafe.config.ConfigFactory
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
+import akka.routing.ConsistentHashingRouter._
+
 object Storefinder {
   def props(collection: ActorbaseCollection, authProxy: ActorRef): Props = Props(new Storefinder(collection, authProxy))
 }
@@ -110,8 +112,8 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
         *
         */
       case ins: Insert =>
-        // storekeepers forward (ConsistentHashableEnvelope(message = InsertItem(self, ins.key, ins.value, ins.update), hashKey = ins.key))
-        storekeepers forward InsertItem(self, ins.key, ins.value, ins.update)
+        storekeepers forward (ConsistentHashableEnvelope(message = InsertItem(self, ins.key, ins.value, ins.update), hashKey = ins.key))
+        //storekeepers forward InsertItem(self, ins.key, ins.value, ins.update)
 
       /**
         * Message that forward to Storekeeper in order to retrieve a given key
@@ -119,8 +121,10 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
         * @param key a String representing the key of the item to be retrieved
         */
       case Get(key) =>
-        // storekeepers forward (ConsistentHashableEnvelope(message = GetItem(key), hashKey = key))
-        storekeepers forward GetItem(key)
+        println("SF: get "+key)
+        storekeepers forward (ConsistentHashableEnvelope(message = GetItem(key), hashKey = key))
+
+        //storekeepers forward GetItem(key)
 
       /**
         * Message that returns the entire collection mapped by this Storefinder
