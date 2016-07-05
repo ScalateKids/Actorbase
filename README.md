@@ -70,7 +70,7 @@ $ java -jar actorbase.jar -h <hostname> -p <port>
 ```
 missing values for hostname and port will result in a fallback (localhost as hostname and 9999 as port)
 
-For further details about configuration, see the wiki:
+For further details about configuration, see the [WIKI](../../wiki).
 
 ## License
 
