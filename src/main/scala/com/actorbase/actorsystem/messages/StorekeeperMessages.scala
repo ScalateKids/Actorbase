@@ -30,7 +30,7 @@ package com.actorbase.actorsystem.messages.StorekeeperMessages
 
 import akka.actor.ActorRef
 import akka.dispatch.ControlMessage
-import akka.routing.ConsistentHashingRouter.ConsistentHashable
+// import akka.routing.ConsistentHashingRouter.ConsistentHashable
 
 /**
   * Trait defining a generic storekeeper actor dedicated message
@@ -58,10 +58,10 @@ final case class GetAll(parent: ActorRef, requester: String) extends Storekeeper
   * Message used to get item with defined Key
   * @param key key of the requested data
   */
-// final case class GetItem(key: String, uuid: String) extends StorekeeperMessage
-final case class GetItem(key: String, uuid: String) extends ConsistentHashable with StorekeeperMessage {
-  override def consistentHashKey: Any = key
-}
+final case class GetItem(key: String) extends StorekeeperMessage
+// final case class GetItem(key: String, uuid: String) extends ConsistentHashable with StorekeeperMessage {
+//   override def consistentHashKey: Any = key
+// }
 
 /**
   * Message used to insert item in the storekeeper
@@ -70,16 +70,17 @@ final case class GetItem(key: String, uuid: String) extends ConsistentHashable w
   * @param value byte array with data that will be insert
   * @param update boolean flag to allow o deny data overwrite (true = allow ; false = deny)
   */
-// final case class InsertItem(parentRef: ActorRef, key: String, value: Array[Byte], uuid:String, update: Boolean = false) extends StorekeeperMessage
-final case class InsertItem(parentRef: ActorRef, key: String, value: Array[Byte], uuid:String, update: Boolean = false) extends ConsistentHashable with StorekeeperMessage {
-  override def consistentHashKey: Any = key
-}
+final case class InsertItem(parentRef: ActorRef, key: String, value: Array[Byte], update: Boolean = false) extends StorekeeperMessage
+// final case class InsertItem(parentRef: ActorRef, key: String, value: Array[Byte], uuid:String, update: Boolean = false) extends ConsistentHashable with StorekeeperMessage {
+//   override def consistentHashKey: Any = key
+// }
 
 /**
   * Message used to remove item from the storekeeper
   * @param parentRef reference to actor that made the request
   * @param key key of the data to remove
   */
-final case class RemoveItem(parentRef: ActorRef, key: String) extends ConsistentHashable with StorekeeperMessage {
-  override def consistentHashKey: Any = key
-}
+final case class RemoveItem(parentRef: ActorRef, key: String) extends StorekeeperMessage
+// final case class RemoveItem(parentRef: ActorRef, key: String) extends ConsistentHashable with StorekeeperMessage {
+//   override def consistentHashKey: Any = key
+// }

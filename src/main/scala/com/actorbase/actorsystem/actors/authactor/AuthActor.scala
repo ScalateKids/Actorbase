@@ -57,8 +57,9 @@ class AuthActor extends Actor with ActorLogging {
   // the rootfolder in which to store the users data
   private val rootFolder = config.getString("save-folder") + "usersdata/"
 
-  private val initDelay = 20 seconds       // delay for the first persistence message to be sent
-  private val intervalDelay = 50 seconds   // interval in-between each persistence message has to be sent
+  private val saveMethod = config getString "save-method"
+  private val initDelay = config.getConfig("snapshot-conf").getInt("first-snapshot-after") seconds       // delay for the first persistence message to be sent
+  private val intervalDelay = config.getConfig("snapshot-conf").getInt("snapshot-every") seconds   // interval in-between each persistence message has to be sent
   private var scheduler: Cancellable = _   // akka scheduler used to track time
                                            // activate the extension
   val mediator = DistributedPubSub(context.system).mediator
@@ -67,13 +68,13 @@ class AuthActor extends Actor with ActorLogging {
     *  Override of the preStart Actor method
     */
   override def preStart = {
-    scheduler = context.system.scheduler.schedule(
-      initialDelay = initDelay,
-      interval = intervalDelay,
-      receiver = self,
-      message = PersistDB
-    )
-    //   persist(Set[Profile](Profile("admin", "Actorb4se", Set.empty[ActorbaseCollection])))
+    if (saveMethod == "snapshot")
+      scheduler = context.system.scheduler.schedule(
+        initialDelay = initDelay,
+        interval = intervalDelay,
+        receiver = self,
+        message = PersistDB
+      )
   }
 
   /**
@@ -90,8 +91,8 @@ class AuthActor extends Actor with ActorLogging {
     * explained in the running method scaladoc
     */
   /*override def receive = running(Set[Profile](Profile("admin", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection]),
-    Profile("anonymous", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection])))*/
-    override def receive = running(Set[Profile](Profile("anonymous", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection])))
+   Profile("anonymous", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection])))*/
+  override def receive = running(Set[Profile](Profile("anonymous", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection])))
 
   /**
     * Method used to persist the users data to filesystem
@@ -165,8 +166,8 @@ class AuthActor extends Actor with ActorLogging {
         * @param password a String representing the password of the user
         */
       case Init(username, password) =>{
-          println("initing "+username)
-          context become running (profiles + Profile(username, password, Set.empty[ActorbaseCollection]))
+        println("initing "+username)
+        context become running (profiles + Profile(username, password, Set.empty[ActorbaseCollection]))
       }
 
 
@@ -307,21 +308,6 @@ class AuthActor extends Actor with ActorLogging {
         optElem map { set =>
           val names = set.getCollections map (collection => Map(collection.getOwner -> List(collection.getName, collection.getWeight.toString)))
           sender ! ListTupleResponse(names.toList)
-        }
-
-      /**
-        * Build a list of UUIDs of collections owned by the username
-        * that request them
-        *
-        * @param username a String representing the username of the user designed for retrieval of his collections
-        */
-      case ListUUIDsOwnedBy(username) =>
-        val optElem = profiles find (_.username == username)
-        optElem map { set =>
-          val uuids =
-            if (username == "admin") set.getCollections map (collection => collection.getUUID)
-            else set.getCollections map (collection => if (collection.getOwner == username) collection.getUUID else "")
-          sender ! ListResponse(uuids.toList)
         }
 
       /**

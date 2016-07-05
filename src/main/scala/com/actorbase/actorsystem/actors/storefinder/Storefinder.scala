@@ -34,8 +34,13 @@ import akka.actor.{ Actor, ActorLogging, ActorRef, OneForOneStrategy, Props }
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent.MemberUp
 import akka.cluster.routing.ClusterRouterPool
+
+import akka.cluster.routing.ClusterRouterGroup
+import akka.cluster.routing.ClusterRouterGroupSettings
+
 import akka.cluster.routing.ClusterRouterPoolSettings
 import akka.routing.ConsistentHashingPool
+import akka.routing.ConsistentHashingGroup
 import akka.routing.Broadcast
 import akka.actor.SupervisorStrategy._
 import com.actorbase.actorsystem.messages.StorefinderMessages._
@@ -71,20 +76,18 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
   val role =
     if (config.getString("role") == "") None
     else Some(config getString "role")
+  val saveMethod = ConfigFactory.load().getConfig("persistence").getString("save-method")
 
   def hashMapping: ConsistentHashMapping = {
-    case InsertItem(parentRef, key, value, uuid, update) => key + uuid
-    case GetItem(key, uuid) => key + uuid
+    case InsertItem(parentRef, key, value, update) => key
+    case GetItem(key) => key
+    case RemoveItem(parentRef, key) => key
   }
 
   // val storekeepers = context.actorOf(ClusterRouterPool(ConsistentHashingPool(0),
-  //   ClusterRouterPoolSettings(config getInt "max-instances", config getInt "instances-per-node", true, useRole = role)).props(Storekeeper.props(collection.getName, collection.getOwner, config getInt "size")), name = "storekeepers")
+  // ClusterRouterPoolSettings(config getInt "max-instances", config getInt "instances-per-node", true, useRole = role)).props(Storekeeper.props(collection.getName, collection.getOwner, config getInt "size")), name = "storekeepers")
 
-  val storekeepers = context.actorOf(
-    ClusterRouterGroup(ConsistentHashingGroup(Nil), ClusterRouterGroupSettings(
-      totalInstances = 100, routeesPaths = List("/user/storekeepers"),
-      allowLocalRoutees = true, useRole = None)).props(Storekeeper.props(collection.getName, collection.getOwner, config getInt "size")), name = "storekeepers")
-  // val storekeepers = context.actorOf(ConsistentHashingPool(20, hashMapping = hashMapping).props(Storekeeper.props(collection.getName, collection.getOwner, config getInt "size")), name = "storekeepers")
+  val storekeepers = context.actorOf(ConsistentHashingPool(config getInt "instances-per-node", hashMapping = hashMapping).props(Storekeeper.props(collection.getName, collection.getOwner, saveMethod, config getInt "size")), name = "storekeepers")
   val manager = context.actorOf(Manager.props(collection.getName, collection.getOwner, storekeepers), collection.getUUID + "-manager")
 
   storekeepers ! Broadcast(InitMn(manager))
@@ -123,8 +126,8 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
         */
       case ins: Insert =>
         val uuid = collection.getUUID
-        storekeepers forward (ConsistentHashableEnvelope(message = InsertItem(self, ins.key, ins.value, uuid, ins.update), hashKey = ins.key))
-        // storekeepers forward InsertItem(self, ins.key, ins.value, uuid, ins.update)
+        // storekeepers forward (ConsistentHashableEnvelope(message = InsertItem(self, ins.key, ins.value, uuid, ins.update), hashKey = ins.key))
+        storekeepers forward InsertItem(self, ins.key, ins.value, ins.update)
 
       /**
         * Message that forward to Storekeeper in order to retrieve a given key
@@ -132,11 +135,11 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
         * @param key a String representing the key of the item to be retrieved
         */
       case Get(key) =>
-        println("SF: get "+key+" from "+collection)
+        // println("SF: get "+key+" from "+collection)
         val uuid = collection.getUUID
-        storekeepers forward (ConsistentHashableEnvelope(message = GetItem(key, uuid), hashKey = key))
+        // storekeepers forward (ConsistentHashableEnvelope(message = GetItem(key, uuid), hashKey = key))
 
-        // storekeepers forward GetItem(key, uuid)
+        storekeepers forward GetItem(key)
 
       /**
         * Message that returns the entire collection mapped by this Storefinder

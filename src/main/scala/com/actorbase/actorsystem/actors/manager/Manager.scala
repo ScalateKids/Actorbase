@@ -34,9 +34,6 @@ import akka.actor.SupervisorStrategy._
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.ExecutionContext.Implicits.global
-// import akka.cluster.routing.ClusterRouterPool
-// import akka.cluster.routing.ClusterRouterPoolSettings
-// import akka.routing.ConsistentHashingPool
 
 import com.actorbase.actorsystem.actors.storekeeper.Storekeeper
 import com.actorbase.actorsystem.messages.StorekeeperMessages.InitMn
@@ -62,7 +59,7 @@ class Manager(val collection: String, val owner: String, val router: ActorRef) e
   implicit val timeout = Timeout(5 seconds)
   var reports = 0
   val config = ConfigFactory.load().getConfig("storekeepers")
-  // val instancePerNode = config getInt "instance-per-node"
+  val saveMethod = ConfigFactory.load().getConfig("persistence").getString("save-method")
 
   /**
     * Method that overrides the supervisorStrategy method.
@@ -83,15 +80,9 @@ class Manager(val collection: String, val owner: String, val router: ActorRef) e
 
       case OneMore =>
         reports += 1
-        // log.info("new storekeeper added to [POOL]")
-        // val newSk = context.actorOf(ClusterRouterPool(ConsistentHashingPool(0),
-        // ClusterRouterPoolSettings(config getInt "max-instances", 1, true, useRole = None)).props(Storekeeper.props(collection, owner, config getInt "size")), s"managerStorekeeper-$reports")
-        // val newSk = context.actorOf(Storekeeper.props(collection, owner, config getInt "size"), s"managerStorekeeper-$reports")
-        // newSk ! InitMn(self)
-        // router ! AddRoutee(ActorRefRoutee(newSk))
-        // val future = (router ? GetRoutees).mapTo
-        // log.info()
-        router ! AdjustPoolSize(30 + reports)
+        val newSk = context.actorOf(Storekeeper.props(collection, owner, saveMethod, config getInt "size"), s"managerStorekeeper-$reports")
+        newSk ! InitMn(self)
+        router ! AddRoutee(ActorRefRoutee(newSk))
     }
   }
 }

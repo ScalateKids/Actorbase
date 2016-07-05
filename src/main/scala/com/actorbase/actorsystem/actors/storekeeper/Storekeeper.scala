@@ -49,7 +49,7 @@ import scala.language.postfixOps
 
 object Storekeeper {
 
-  def props(n: String, o: String, s: Int): Props = Props(classOf[Storekeeper], n, o, s)
+  def props(n: String, o: String, m: String, s: Int): Props = Props(classOf[Storekeeper], n, o, m, s)
 
 }
 
@@ -60,7 +60,9 @@ object Storekeeper {
   * @param range
   * @param maxSize
   */
-class Storekeeper(private val collectionName: String, private val collectionOwner: String, indicativeSize: Int) extends Actor with ActorLogging {
+class Storekeeper(private val collectionName: String,
+  private val collectionOwner: String, saveMethod: String,
+  indicativeSize: Int) extends Actor with ActorLogging {
 
   val mediator = DistributedPubSub(context.system).mediator
   // subscribe to the topic named "persist-data"
@@ -69,7 +71,7 @@ class Storekeeper(private val collectionName: String, private val collectionOwne
   private val warehouseman = context.actorOf(Warehouseman.props( collectionOwner + collectionName ))
   private var manager: Option[ActorRef] = None
   private var checked = false
-  val cluster = Cluster(context.system)
+  private val cluster = Cluster(context.system)
 
   warehouseman ! Init( collectionName, collectionOwner)
 
@@ -114,8 +116,8 @@ class Storekeeper(private val collectionName: String, private val collectionOwne
         * @param key a String representing the key of the item to be returned (sta roba sarà da cambiare)
         *
         */
-      case GetItem(key, uuid)  =>
-        log.info("SK "+data.contains(key)+" of collection "+collectionName+"With data \n"+data)
+      case GetItem(key)  =>
+        // log.info("SK "+data.contains(key)+" of collection "+collectionName+"With data \n"+data)
         data get key map (v => sender ! Right(Response(CryptoUtils.bytesToAny(v)))) getOrElse sender ! Left("UndefinedKey")
 
       /**
@@ -133,6 +135,8 @@ class Storekeeper(private val collectionName: String, private val collectionOwne
         if (data contains(key)) {
           parent ! UpdateCollectionSize(0, false)
           sender ! "OK"
+          if (saveMethod == "onchange")
+            warehouseman ! Save(data - key)
           context become running(data - key)
         } else sender ! "UndefinedKey"
 
@@ -147,7 +151,7 @@ class Storekeeper(private val collectionName: String, private val collectionOwne
         *
         */
       case ins: InsertItem =>
-        log.info("SK inserting "+ins.key+" of collection "+collectionName+"With data \n"+data)
+        // log.info("SK inserting "+ins.key+" of collection "+collectionName+"With data \n"+data)
         /**
           * private method that insert an item to the collection, can allow the update of the item or not
           * changing the param update
@@ -178,14 +182,16 @@ class Storekeeper(private val collectionName: String, private val collectionOwne
           // log.info("SK: Got work!")
           val w = ins.value.length.toLong + ins.key.getBytes("UTF-8").length.toLong
           ins.parentRef ! UpdateCollectionSize(w, true)
-          // if (data.size > indicativeSize && !checked) {
-          //   checked = true
-          //   manager map (_ ! OneMore) getOrElse (checked = false)
-          // }
+          if (data.size > indicativeSize && !checked) {
+            checked = true
+            manager map (_ ! OneMore) getOrElse (checked = false)
+          }
         }
 
         if (insertOrUpdate(ins.update, ins.key) == true) {
           sender ! "OK"
+          if (saveMethod == "onchange")
+            warehouseman ! Save(data + (ins.key -> ins.value))
           context become running(data + (ins.key -> ins.value))
         } else sender ! "DuplicatedKey"
 

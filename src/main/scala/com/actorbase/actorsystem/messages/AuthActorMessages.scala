@@ -119,13 +119,6 @@ final case class ListCollectionsOf(username: String) extends AuthActorMessages
 final case class Init(username: String, password: String) extends AuthActorMessages
 
 /**
-  * Message used to request a list of collections owned by a given user
-  *
-  * @param username a String representing the username of the user
-  */
-final case class ListUUIDsOwnedBy(username: String) extends AuthActorMessages
-
-/**
   * Message used to update weight of a collection
   */
 final case class SetCollectionWeightOf(collection: ActorbaseCollection, weight: Long) extends AuthActorMessages
