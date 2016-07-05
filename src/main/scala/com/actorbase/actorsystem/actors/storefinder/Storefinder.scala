@@ -112,7 +112,8 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
         *
         */
       case ins: Insert =>
-        storekeepers forward (ConsistentHashableEnvelope(message = InsertItem(self, ins.key, ins.value, ins.update), hashKey = ins.key))
+        val uuid = collection.getUUID
+        storekeepers forward (ConsistentHashableEnvelope(message = InsertItem(self, ins.key, ins.value, uuid, ins.update), hashKey = ins.key + uuid))
         //storekeepers forward InsertItem(self, ins.key, ins.value, ins.update)
 
       /**
@@ -122,7 +123,8 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
         */
       case Get(key) =>
         println("SF: get "+key)
-        storekeepers forward (ConsistentHashableEnvelope(message = GetItem(key), hashKey = key))
+        val uuid = collection.getUUID
+        storekeepers forward (ConsistentHashableEnvelope(message = GetItem(key, uuid), hashKey = key+uuid))
 
         //storekeepers forward GetItem(key)
 

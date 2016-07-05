@@ -33,6 +33,8 @@ import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import akka.cluster.pubsub.DistributedPubSub
 import akka.actor.SupervisorStrategy._
 
+import akka.cluster.Cluster
+import akka.cluster.ClusterEvent.MemberUp
 
 import com.actorbase.actorsystem.messages.StorekeeperMessages._
 import com.actorbase.actorsystem.messages.StorefinderMessages.{PartialMapTransaction, UpdateCollectionSize}
@@ -67,8 +69,12 @@ class Storekeeper(private val collectionName: String, private val collectionOwne
   private val warehouseman = context.actorOf(Warehouseman.props( collectionOwner + collectionName ))
   private var manager: Option[ActorRef] = None
   private var checked = false
+  val cluster = Cluster(context.system)
 
   warehouseman ! Init( collectionName, collectionOwner)
+
+  override def preStart(): Unit = cluster.subscribe(self, classOf[MemberUp])
+  override def postStop(): Unit = cluster.unsubscribe(self)
 
   override val supervisorStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
@@ -108,7 +114,7 @@ class Storekeeper(private val collectionName: String, private val collectionOwne
         * @param key a String representing the key of the item to be returned (sta roba sarà da cambiare)
         *
         */
-      case GetItem(key)  =>
+      case GetItem(key, uuid)  =>
         println("SK "+data.contains(key))
         data get key map (v => sender ! Right(Response(CryptoUtils.bytesToAny(v)))) getOrElse sender ! Left("UndefinedKey")
 
