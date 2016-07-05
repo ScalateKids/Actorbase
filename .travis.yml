@@ -1,0 +1,17 @@
+notifications:
+    email:
+        recipients:
+            - munaro.michael@gmail.com
+        on_success:
+                never
+        on_failure:
+                change
+
+language: scala
+jdk: oraclejdk8
+
+scala:
+    - 2.11.8
+
+# script: "sbt clean coverage test"
+# after_success: "sbt coverageReport coveralls"

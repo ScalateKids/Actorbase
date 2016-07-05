@@ -116,7 +116,7 @@ trait CollectionApi extends HttpServiceBase with Authenticator {
         }
       }
     } ~
-    pathPrefix("collections" / "\\S+".r) { collection =>
+    pathPrefix("collections" / "^[a-zA-Z0-9_]*$".r) { collection =>
       pathEndOrSingleSlash {
         authenticate(basicUserAuthenticator(ec, authProxy)) { authInfo =>
           get {
@@ -151,7 +151,7 @@ trait CollectionApi extends HttpServiceBase with Authenticator {
           }
         }
       } ~
-      pathSuffix("\\S+".r) { key =>
+      pathSuffix("^[a-zA-Z0-9_]*$".r) { key =>
         pathEndOrSingleSlash {
           authenticate(basicUserAuthenticator(ec, authProxy)) { authInfo =>
             headerValueByName("owner") { owner =>
@@ -212,9 +212,6 @@ trait CollectionApi extends HttpServiceBase with Authenticator {
   pathPrefix("contributors" / "\\S+".r) { collection =>
     pathEndOrSingleSlash {
       authenticate(basicUserAuthenticator(ec, authProxy)) { authInfo =>
-        // get {
-        //   complete("contr")
-        // } ~
         post {
           decompressRequest() {
             headerValueByName("permission") { permission =>
