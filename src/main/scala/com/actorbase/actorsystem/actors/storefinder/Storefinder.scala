@@ -77,9 +77,13 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
     case GetItem(key, uuid) => key + uuid
   }
 
-  val storekeepers = context.actorOf(ClusterRouterPool(ConsistentHashingPool(0),
-    ClusterRouterPoolSettings(config getInt "max-instances", config getInt "instances-per-node", true, useRole = role)).props(Storekeeper.props(collection.getName, collection.getOwner, config getInt "size")), name = "storekeepers")
+  // val storekeepers = context.actorOf(ClusterRouterPool(ConsistentHashingPool(0),
+  //   ClusterRouterPoolSettings(config getInt "max-instances", config getInt "instances-per-node", true, useRole = role)).props(Storekeeper.props(collection.getName, collection.getOwner, config getInt "size")), name = "storekeepers")
 
+  val storekeepers = context.actorOf(
+    ClusterRouterGroup(ConsistentHashingGroup(Nil), ClusterRouterGroupSettings(
+      totalInstances = 100, routeesPaths = List("/user/storekeepers"),
+      allowLocalRoutees = true, useRole = None)).props(Storekeeper.props(collection.getName, collection.getOwner, config getInt "size")), name = "storekeepers")
   // val storekeepers = context.actorOf(ConsistentHashingPool(20, hashMapping = hashMapping).props(Storekeeper.props(collection.getName, collection.getOwner, config getInt "size")), name = "storekeepers")
   val manager = context.actorOf(Manager.props(collection.getName, collection.getOwner, storekeepers), collection.getUUID + "-manager")
 
