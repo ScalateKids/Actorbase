@@ -109,7 +109,7 @@ class Storekeeper(private val collectionName: String, private val collectionOwne
         *
         */
       case GetItem(key)  =>
-        println("SK "+data.contains(key))
+        println("SK "+data.contains(key)+" of collection "+collectionName)
         data get key map (v => sender ! Right(Response(CryptoUtils.bytesToAny(v)))) getOrElse sender ! Left("UndefinedKey")
 
       /**
