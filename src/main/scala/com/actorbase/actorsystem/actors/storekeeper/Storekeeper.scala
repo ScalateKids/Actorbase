@@ -115,7 +115,7 @@ class Storekeeper(private val collectionName: String, private val collectionOwne
         *
         */
       case GetItem(key, uuid)  =>
-        println("SK "+data.contains(key)+" of collection "+collectionName+"With data \n"+data)
+        log.info("SK "+data.contains(key)+" of collection "+collectionName+"With data \n"+data)
         data get key map (v => sender ! Right(Response(CryptoUtils.bytesToAny(v)))) getOrElse sender ! Left("UndefinedKey")
 
       /**
@@ -147,6 +147,7 @@ class Storekeeper(private val collectionName: String, private val collectionOwne
         *
         */
       case ins: InsertItem =>
+        log.info("SK inserting "+ins.key+" of collection "+collectionName+"With data \n"+data)
         /**
           * private method that insert an item to the collection, can allow the update of the item or not
           * changing the param update
