@@ -66,7 +66,7 @@ object Storefinder {
   */
 class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorRef) extends Actor with ActorLogging {
 
-  // val cluster = Cluster(context.system)
+  val cluster = Cluster(context.system)
   val config = ConfigFactory.load().getConfig("storekeepers")
   val role =
     if (config.getString("role") == "") None
@@ -85,8 +85,8 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
 
   storekeepers ! Broadcast(InitMn(manager))
 
-  // override def preStart(): Unit = cluster.subscribe(self, classOf[MemberUp])
-  // override def postStop(): Unit = cluster.unsubscribe(self)
+  override def preStart(): Unit = cluster.subscribe(self, classOf[MemberUp])
+  override def postStop(): Unit = cluster.unsubscribe(self)
 
   override val supervisorStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
