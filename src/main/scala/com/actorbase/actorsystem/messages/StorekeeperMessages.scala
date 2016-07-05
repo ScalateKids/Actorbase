@@ -58,9 +58,10 @@ final case class GetAll(parent: ActorRef, requester: String) extends Storekeeper
   * Message used to get item with defined Key
   * @param key key of the requested data
   */
-final case class GetItem(key: String, uuid: String) extends ConsistentHashable with StorekeeperMessage {
-  override def consistentHashKey: Any = key+uuid
-}
+final case class GetItem(key: String, uuid: String) extends StorekeeperMessage
+// final case class GetItem(key: String, uuid: String) extends ConsistentHashable with StorekeeperMessage {
+//   override def consistentHashKey: Any = key+uuid
+// }
 
 /**
   * Message used to insert item in the storekeeper
@@ -69,9 +70,10 @@ final case class GetItem(key: String, uuid: String) extends ConsistentHashable w
   * @param value byte array with data that will be insert
   * @param update boolean flag to allow o deny data overwrite (true = allow ; false = deny)
   */
-final case class InsertItem(parentRef: ActorRef, key: String, value: Array[Byte], uuid:String, update: Boolean = false) extends ConsistentHashable with StorekeeperMessage {
-  override def consistentHashKey: Any = key+uuid
-}
+final case class InsertItem(parentRef: ActorRef, key: String, value: Array[Byte], uuid:String, update: Boolean = false) extends StorekeeperMessage
+// final case class InsertItem(parentRef: ActorRef, key: String, value: Array[Byte], uuid:String, update: Boolean = false) extends ConsistentHashable with StorekeeperMessage {
+//   override def consistentHashKey: Any = key+uuid
+// }
 
 /**
   * Message used to remove item from the storekeeper

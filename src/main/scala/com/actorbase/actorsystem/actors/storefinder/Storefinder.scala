@@ -66,21 +66,27 @@ object Storefinder {
   */
 class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorRef) extends Actor with ActorLogging {
 
-  val cluster = Cluster(context.system)
+  // val cluster = Cluster(context.system)
   val config = ConfigFactory.load().getConfig("storekeepers")
   val role =
     if (config.getString("role") == "") None
     else Some(config getString "role")
 
+  def hashMapping: ConsistentHashMapping = {
+    case InsertItem(parentRef, key, value, uuid, update) => key + uuid
+    case GetItem(key, uuid) => key + uuid
+  }
+
   val storekeepers = context.actorOf(ClusterRouterPool(ConsistentHashingPool(0),
     ClusterRouterPoolSettings(config getInt "max-instances", config getInt "instances-per-node", true, useRole = role)).props(Storekeeper.props(collection.getName, collection.getOwner, config getInt "size")), name = "storekeepers")
 
+  // val storekeepers = context.actorOf(ConsistentHashingPool(20, hashMapping = hashMapping).props(Storekeeper.props(collection.getName, collection.getOwner, config getInt "size")), name = "storekeepers")
   val manager = context.actorOf(Manager.props(collection.getName, collection.getOwner, storekeepers), collection.getUUID + "-manager")
 
   storekeepers ! Broadcast(InitMn(manager))
 
-  override def preStart(): Unit = cluster.subscribe(self, classOf[MemberUp])
-  override def postStop(): Unit = cluster.unsubscribe(self)
+  // override def preStart(): Unit = cluster.subscribe(self, classOf[MemberUp])
+  // override def postStop(): Unit = cluster.unsubscribe(self)
 
   override val supervisorStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
@@ -114,7 +120,7 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
       case ins: Insert =>
         val uuid = collection.getUUID
         storekeepers forward (ConsistentHashableEnvelope(message = InsertItem(self, ins.key, ins.value, uuid, ins.update), hashKey = ins.key + uuid))
-        //storekeepers forward InsertItem(self, ins.key, ins.value, ins.update)
+        // storekeepers forward InsertItem(self, ins.key, ins.value, uuid, ins.update)
 
       /**
         * Message that forward to Storekeeper in order to retrieve a given key
@@ -126,7 +132,7 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
         val uuid = collection.getUUID
         storekeepers forward (ConsistentHashableEnvelope(message = GetItem(key, uuid), hashKey = key+uuid))
 
-        //storekeepers forward GetItem(key)
+        // storekeepers forward GetItem(key, uuid)
 
       /**
         * Message that returns the entire collection mapped by this Storefinder
