@@ -112,7 +112,6 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
 
   private var sfMap = Map[ActorbaseCollection, ActorRef]().empty
   private var requestMap = Map[String, mutable.Map[String, mutable.Map[String, Array[Byte]]]]() // a bit clunky, should switch to a queue
-  private val colPattern = "^[a-zA-Z0-9_]*$".r
 
   /**
     * Method that overrides the supervisorStrategy method.
@@ -182,7 +181,6 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
         * updating the value)
         */
       case InsertTo(requester, collection, key, value, update) =>
-        colPattern findFirstIn collection.getName map (x => sender ! "InvalidChar") getOrElse {
           // log.info("MAIN: got work!")
           sfMap.find(x => x._1 == collection) map { c =>
             if (requester == c._1.getOwner || c._1.containsReadWriteContributor(requester))
@@ -193,7 +191,6 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
               createCollection(collection) map (_ forward Insert(key, value, update)) getOrElse sender ! "UndefinedCollection"
             else sender ! "NoPrivileges"
           }
-        }
 
       /**
         * Create a collection in the system
@@ -202,12 +199,10 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
         * @param owner a String representing the owner of the collection
         */
       case CreateCollection(requester, collection) =>
-        colPattern findFirstIn collection.getName map (x => sender ! "InvalidChar") getOrElse {
           if (requester == "admin" || requester == collection.getOwner) {
             createCollection(collection)
             sender ! "OK"
           } else sender ! "NoPrivileges"
-        }
 
       /**
         * Get item from collection message, given a key of type String, retrieve

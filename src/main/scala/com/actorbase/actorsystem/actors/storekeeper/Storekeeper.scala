@@ -67,7 +67,6 @@ class Storekeeper(private val collectionName: String, private val collectionOwne
   private val warehouseman = context.actorOf(Warehouseman.props( collectionOwner + collectionName ))
   private var manager: Option[ActorRef] = None
   private var checked = false
-  private val keyPattern = "^[a-zA-Z0-9_]*$".r
 
   warehouseman ! Init( collectionName, collectionOwner)
 
@@ -141,49 +140,46 @@ class Storekeeper(private val collectionName: String, private val collectionOwne
         *
         */
       case ins: InsertItem =>
-        keyPattern findFirstIn ins.key map (x => sender ! "InvalidChar") getOrElse {
-
-          /**
-            * private method that insert an item to the collection, can allow the update of the item or not
-            * changing the param update
-            *
-            * @param update boolean. 1 if the insert allow an update, 0 otherwise
-            * @param key String representing the key of the item
-            */
-          def insertOrUpdate(update: Boolean, key: String): Boolean = {
-            var done = true
-            if (!update && !data.contains(key)) {
-              insertWithoutUpdate
-            }
-            else if (!update && data.contains(key)) {
-              done = false
-            }
-            else if (update && !data.contains(key)){
-              insertWithoutUpdate
-            }
-            done
+        /**
+          * private method that insert an item to the collection, can allow the update of the item or not
+          * changing the param update
+          *
+          * @param update boolean. 1 if the insert allow an update, 0 otherwise
+          * @param key String representing the key of the item
+          */
+        def insertOrUpdate(update: Boolean, key: String): Boolean = {
+          var done = true
+          if (!update && !data.contains(key)) {
+            insertWithoutUpdate
           }
-
-          /**
-            * Private method used to insert an item without overwriting. This method update the size
-            * of the collection and proceed to ask the manager to create another Storekeeper if
-            * this is full
-            */
-          def insertWithoutUpdate: Unit = {
-            // log.info("SK: Got work!")
-            val w = ins.value.length.toLong + ins.key.getBytes("UTF-8").length.toLong
-            ins.parentRef ! UpdateCollectionSize(w, true)
-            // if (data.size > indicativeSize && !checked) {
-            //   checked = true
-            //   manager map (_ ! OneMore) getOrElse (checked = false)
-            // }
+          else if (!update && data.contains(key)) {
+            done = false
           }
-
-          if (insertOrUpdate(ins.update, ins.key) == true) {
-            sender ! "OK"
-            context become running(data + (ins.key -> ins.value))
-          } else sender ! "DuplicatedKey"
+          else if (update && !data.contains(key)){
+            insertWithoutUpdate
+          }
+          done
         }
+
+        /**
+          * Private method used to insert an item without overwriting. This method update the size
+          * of the collection and proceed to ask the manager to create another Storekeeper if
+          * this is full
+          */
+        def insertWithoutUpdate: Unit = {
+          // log.info("SK: Got work!")
+          val w = ins.value.length.toLong + ins.key.getBytes("UTF-8").length.toLong
+          ins.parentRef ! UpdateCollectionSize(w, true)
+          // if (data.size > indicativeSize && !checked) {
+          //   checked = true
+          //   manager map (_ ! OneMore) getOrElse (checked = false)
+          // }
+        }
+
+        if (insertOrUpdate(ins.update, ins.key) == true) {
+          sender ! "OK"
+          context become running(data + (ins.key -> ins.value))
+        } else sender ! "DuplicatedKey"
 
       /**
         * Persist data to disk
