@@ -29,11 +29,9 @@
 package com.actorbase.actorsystem.actors.manager
 
 import akka.actor.{ Actor, ActorLogging, ActorRef, OneForOneStrategy, Props }
-import akka.routing.{ ActorRefRoutee, AddRoutee, AdjustPoolSize, GetRoutees }
+import akka.routing.{ ActorRefRoutee, AddRoutee }
 import akka.actor.SupervisorStrategy._
-import akka.pattern.ask
-import akka.util.Timeout
-import scala.concurrent.ExecutionContext.Implicits.global
+// import akka.util.Timeout
 
 import com.actorbase.actorsystem.actors.storekeeper.Storekeeper
 import com.actorbase.actorsystem.messages.StorekeeperMessages.InitMn
@@ -56,7 +54,6 @@ object Manager {
   */
 class Manager(val collection: String, val owner: String, val router: ActorRef) extends Actor with ActorLogging {
 
-  implicit val timeout = Timeout(5 seconds)
   var reports = 0
   val config = ConfigFactory.load().getConfig("storekeepers")
   val saveMethod = ConfigFactory.load().getConfig("persistence").getString("save-method")

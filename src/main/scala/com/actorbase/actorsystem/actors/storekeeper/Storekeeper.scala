@@ -33,8 +33,8 @@ import akka.cluster.pubsub.DistributedPubSubMediator.Subscribe
 import akka.cluster.pubsub.DistributedPubSub
 import akka.actor.SupervisorStrategy._
 
-import akka.cluster.Cluster
-import akka.cluster.ClusterEvent.MemberUp
+// import akka.cluster.Cluster
+// import akka.cluster.ClusterEvent.MemberUp
 
 import com.actorbase.actorsystem.messages.StorekeeperMessages._
 import com.actorbase.actorsystem.messages.StorefinderMessages.{PartialMapTransaction, UpdateCollectionSize}
@@ -133,7 +133,9 @@ class Storekeeper(private val collectionName: String,
         */
       case RemoveItem(parent, key) =>
         if (data contains(key)) {
-          parent ! UpdateCollectionSize(0, false)
+          var w = 0L
+          data get key map (w += _.length + key.getBytes("UTF-8").length.toLong)
+          parent ! UpdateCollectionSize(w, false)
           sender ! "OK"
           if (saveMethod == "onchange")
             warehouseman ! Save(data - key)

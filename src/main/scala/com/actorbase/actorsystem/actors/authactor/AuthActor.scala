@@ -60,8 +60,14 @@ class AuthActor extends Actor with ActorLogging {
   private val rootFolder = config.getString("save-folder") + "usersdata/"
 
   private val saveMethod = config getString "save-method"
-  private val initDelay = config.getConfig("snapshot-conf").getInt("first-snapshot-after") seconds       // delay for the first persistence message to be sent
-  private val intervalDelay = config.getConfig("snapshot-conf").getInt("snapshot-every") seconds   // interval in-between each persistence message has to be sent
+  private val initDelay =
+    if (saveMethod == "snapshot")
+      config.getConfig("snapshot-conf").getInt("first-snapshot-after") seconds // delay for the first persistence message to be sent
+    else 30 seconds
+  private val intervalDelay =
+    if (saveMethod == "snapshot")
+      config.getConfig("snapshot-conf").getInt("snapshot-every") seconds   // interval in-between each persistence message has to be sent
+    else 50 seconds
   private var scheduler: Cancellable = _   // akka scheduler used to track time
                                            // activate the extension
   val mediator = DistributedPubSub(context.system).mediator
@@ -168,6 +174,10 @@ class AuthActor extends Actor with ActorLogging {
         log.debug("initing "+username)
         context become running (profiles + Profile(username, password, Set.empty[ActorbaseCollection]))
 
+      /**
+        * Initialize contributors stored on disk
+        *
+        */
       case InitContributor(main) =>
         var contributors = Map.empty[String, List[(String, Boolean)]]
         contributors ++= CryptoUtils.decrypt[Map[String, List[(String, Boolean)]]](config getString "encryption-key", new java.io.File(rootFolder+"/contributors.shadow"))
@@ -178,7 +188,6 @@ class AuthActor extends Actor with ActorLogging {
               main ! AddContributor("admin", k, permission, item._1, false)
             }
         }
-        println(contributors)
 
       /**
         * Add a pair username-password generating an hash to store the password,
