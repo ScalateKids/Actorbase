@@ -29,7 +29,7 @@
 
 package com.actorbase.actorsystem.actors.httpserver
 
-import akka.actor.{Actor, ActorSystem, ActorLogging, ActorRef, PoisonPill, Props}
+import akka.actor.{Actor, ActorSystem, ActorLogging, ActorRef, PoisonPill, Props, Terminated}
 import akka.io.IO
 import spray.can.Http
 import akka.event.LoggingReceive
@@ -154,6 +154,8 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
       val serverConnection = sender()
       val handler = context.actorOf(Props(new ClientActor(main, authProxy)))
       serverConnection ! Http.Register(handler)
+
+    case Terminated(_) =>
   }
 
 }
