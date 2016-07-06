@@ -139,11 +139,11 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
           }
       }
 
-      // def getRecursively(f: File): Seq[File] = f.listFiles.filter(_.isDirectory).flatMap(getRecursively) ++ f.listFiles
-      // getRecursively( root ).foreach { f =>
-      //   if (!f.getName.endsWith("shadow") && f.getName != "usersdata")
-      //     f.delete()
-      // }
+      def getRecursively(f: File): Seq[File] = f.listFiles.filter(_.isDirectory).flatMap(getRecursively) ++ f.listFiles
+      getRecursively( root ).foreach { f =>
+        if (!f.getName.endsWith("shadow") && f.getName != "usersdata")
+          f.delete()
+      }
 
     } else {
       log.debug("Directory not found!")
@@ -151,7 +151,7 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
       authProxy ! Init("admin", "Actorb4se".bcrypt(generateSalt))
     }
 
-    authProxy ! Save
+    // authProxy ! Save
 
   }
 
