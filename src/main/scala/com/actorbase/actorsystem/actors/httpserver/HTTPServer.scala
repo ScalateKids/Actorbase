@@ -41,7 +41,7 @@ import com.typesafe.config.ConfigFactory
 
 import com.actorbase.actorsystem.actors.clientactor.ClientActor
 import com.actorbase.actorsystem.actors.authactor.AuthActor
-import com.actorbase.actorsystem.messages.AuthActorMessages.{ Init, Save, Clean }
+import com.actorbase.actorsystem.messages.AuthActorMessages.{ Init, InitContributor, Save, Clean }
 import com.actorbase.actorsystem.actors.main.Main
 import com.actorbase.actorsystem.messages.MainMessages._
 import com.actorbase.actorsystem.utils.ActorbaseCollection
@@ -81,7 +81,7 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
     val root = new File(config getString "save-folder")
     var dataShard = Map.empty[String, Array[Byte]]
     var usersmap = Map.empty[String, String]
-    var contributors = Map.empty[String, List[(String, Boolean)]]
+    //var contributors = Map.empty[String, List[(String, Boolean)]]
     var data = Queue.empty[(ActorbaseCollection, Map[String, Array[Byte]])]
     log.debug("LOADING ......... ")
     if (root.exists && root.isDirectory) {
@@ -94,10 +94,11 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
               metaData get "collection" map (c => name = c)
               metaData get "owner" map (o => owner = o)
               main ! CreateCollection(owner, ActorbaseCollection(name, owner))
+              authProxy ! InitContributor(main)
             case user if (user.getName == "usersdata.shadow") =>
               usersmap ++= CryptoUtils.decrypt[Map[String, String]](config getString "encryption-key", user)
-            case contributor if (contributor.getName == "contributors.shadow") =>
-              contributors ++= CryptoUtils.decrypt[Map[String, List[(String, Boolean)]]](config getString "encryption-key", contributor)
+            //case contributor if (contributor.getName == "contributors.shadow") =>
+              //contributors ++= CryptoUtils.decrypt[Map[String, List[(String, Boolean)]]](config getString "encryption-key", contributor)
             case _ => dataShard ++= CryptoUtils.decrypt[Map[String, Array[Byte]]](config getString "encryption-key", x)
           }
         }
@@ -110,15 +111,18 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
 
       usersmap map ( x => authProxy ! Init(x._1, x._2) )
 
+/*      case contributor if (contributor.getName == "contributors.shadow") =>
+        contributors ++= CryptoUtils.decrypt[Map[String, List[(String, Boolean)]]](config getString "encryption-key", contributor)
       contributors.foreach {
         case (k, v) =>
           v.foreach { item =>
             val permission = if (item._2) ReadWrite else Read
             main ! AddContributor("admin", k, permission, item._1)
           }
-      }
+      }*/
 
-      contributors = contributors.empty
+      //contributors = contributors.empty
+
       // populate collections
       data.foreach {
         case (k, v) =>

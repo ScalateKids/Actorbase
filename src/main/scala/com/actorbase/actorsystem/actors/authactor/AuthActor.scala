@@ -37,6 +37,8 @@ import com.actorbase.actorsystem.messages.StorekeeperMessages.Persist
 import com.actorbase.actorsystem.messages.AuthActorMessages._
 import com.actorbase.actorsystem.messages.ClientActorMessages.{ ListResponse, ListTupleResponse }
 import com.actorbase.actorsystem.utils.{ ActorbaseCollection, CryptoUtils }
+import com.actorbase.actorsystem.utils.ActorbaseCollection. { Permissions, Read, ReadWrite }
+import com.actorbase.actorsystem.messages.MainMessages.{AddContributor}
 import com.github.t3hnar.bcrypt._
 import com.typesafe.config.ConfigFactory
 import org.mindrot.jbcrypt.BCrypt
@@ -168,7 +170,16 @@ class AuthActor extends Actor with ActorLogging {
         log.debug("initing "+username)
         context become running (profiles + Profile(username, password, Set.empty[ActorbaseCollection]))
 
-
+      case InitContributor(main) =>
+        var contributors = Map.empty[String, List[(String, Boolean)]]
+        contributors ++= CryptoUtils.decrypt[Map[String, List[(String, Boolean)]]](config getString "encryption-key", new java.io.File(rootFolder+"contributors.shadow"))
+        contributors.foreach {
+          case (k, v) =>
+            v.foreach { item =>
+              val permission = if (item._2) ReadWrite else Read
+              main ! AddContributor("admin", k, permission, item._1)
+            }
+        }
 
       /**
         * Add a pair username-password generating an hash to store the password,

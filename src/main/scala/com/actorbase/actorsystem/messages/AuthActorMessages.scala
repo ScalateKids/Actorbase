@@ -30,6 +30,7 @@ package com.actorbase.actorsystem.messages.AuthActorMessages
 
 import com.actorbase.actorsystem.utils.ActorbaseCollection
 import com.actorbase.actorsystem.utils.ActorbaseCollection.Permissions
+import akka.actor.ActorRef
 
 /**
   * Trait that contains all the messages processable from the AuthActor
@@ -117,6 +118,8 @@ final case class ListCollectionsOf(username: String) extends AuthActorMessages
   * @param password a String representing the password of the user
   */
 final case class Init(username: String, password: String) extends AuthActorMessages
+
+final case class InitContributor(main: ActorRef) extends AuthActorMessages
 
 /**
   * Message used to update weight of a collection
