@@ -180,6 +180,7 @@ class AuthActor extends Actor with ActorLogging {
               main ! AddContributor("admin", k, permission, item._1)
             }
         }
+        println(contributors)
 
       /**
         * Add a pair username-password generating an hash to store the password,
