@@ -28,7 +28,7 @@
 
 package com.actorbase.actorsystem.actors.clientactor
 
-import akka.actor.{ Actor, ActorLogging, ActorRef, OneForOneStrategy}
+import akka.actor.{ Actor, ActorLogging, ActorRef, OneForOneStrategy, PoisonPill}
 import akka.actor.SupervisorStrategy._
 import akka.pattern.ask
 import scala.util.{ Failure, Success }
@@ -171,7 +171,7 @@ class ClientActor(main: ActorRef, authProxy: ActorRef) extends Actor with ActorL
     * stop this actor
     */
   def handleHttpRequests: Receive = {
-    case _: Http.ConnectionClosed => Try(context.stop(self))
+    case _: Http.ConnectionClosed => Try(self ! PoisonPill)
   }
 
   /**
