@@ -34,6 +34,7 @@ import akka.pattern.ask
 import scala.util.{ Failure, Success }
 import spray.can.Http
 import spray.httpx.SprayJsonSupport._
+import scala.concurrent.duration._
 
 import scala.util.Try
 

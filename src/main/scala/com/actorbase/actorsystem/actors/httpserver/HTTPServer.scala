@@ -34,6 +34,7 @@ import akka.actor.SupervisorStrategy._
 import akka.io.IO
 import spray.can.Http
 import akka.event.LoggingReceive
+import scala.concurrent.duration._
 
 import akka.cluster.singleton.{ClusterSingletonManager, ClusterSingletonManagerSettings, ClusterSingletonProxy, ClusterSingletonProxySettings}
 import akka.cluster._
