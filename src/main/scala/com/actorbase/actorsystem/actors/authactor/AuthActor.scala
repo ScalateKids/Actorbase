@@ -177,7 +177,7 @@ class AuthActor extends Actor with ActorLogging {
           case (k, v) =>
             v.foreach { item =>
               val permission = if (item._2) ReadWrite else Read
-              main ! AddContributor("admin", k, permission, item._1)
+              main ! AddContributor("admin", k, permission, item._1, false)
             }
         }
         println(contributors)
@@ -276,13 +276,14 @@ class AuthActor extends Actor with ActorLogging {
         * @param permissions a Permission reference serialized, represents the permission level of the user against the new added collection
         * as contributor
         */
-      case AddCollectionTo(username, collection, permissions) =>
+      case AddCollectionTo(username, collection, permissions, toPersist) =>
         val optElem = profiles find (_.username == username)
         optElem map { x =>
           if (username != collection.getOwner)
             collection.addContributor(username, permissions)
           x.addCollection(collection)
-          persist(profiles + x)
+          if (toPersist)
+            persist(profiles + x)
           sender ! "OK"
           context become running (profiles + x)
         } getOrElse sender ! "UndefinedUsername"

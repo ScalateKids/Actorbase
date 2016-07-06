@@ -83,7 +83,7 @@ object Main {
     case RemoveFrom(_, uuid, _) => (uuid.hashCode % numberOfShards).toString
     case InsertTo(_,collection, _, _, _) => (collection.getUUID.hashCode % numberOfShards).toString
     case GetFrom(_,collection, _) => (collection.getUUID.hashCode % numberOfShards).toString
-    case AddContributor(_, _, _, uuid) => (uuid.hashCode % numberOfShards).toString
+    case AddContributor(_, _, _, uuid, _) => (uuid.hashCode % numberOfShards).toString
     case RemoveContributor(_, _, uuid) => (uuid.hashCode % numberOfShards).toString
   }
 
@@ -302,7 +302,7 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
         * @param collection a String representing the collection name
         *
         */
-      case AddContributor(requester, username, permission, uuid) =>
+      case AddContributor(requester, username, permission, uuid, persist) =>
         implicit val timeout = Timeout(5 seconds)
         val optColl = sfMap find (_._1.getUUID == uuid)
         optColl map { x =>
@@ -312,7 +312,7 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
                 case users => if (users.list.contains(username)) x._1.addContributor(username, permission)
               }
             }
-            authProxy forward AddCollectionTo(username, x._1, permission)
+            authProxy forward AddCollectionTo(username, x._1, permission, persist)
           }
           else sender ! "NoPrivileges"
         } getOrElse sender ! "UndefinedCollection"

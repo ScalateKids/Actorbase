@@ -96,7 +96,7 @@ final case class Authenticate(username: String, password: String) extends AuthAc
   * @param username a string with the username to associate at the collection
   * @param collection the collection to associate at the username
   */
-final case class AddCollectionTo(username: String, collection: ActorbaseCollection, permissions: Permissions) extends AuthActorMessages
+final case class AddCollectionTo(username: String, collection: ActorbaseCollection, permissions: Permissions, persist: Boolean = true) extends AuthActorMessages
 
 /**
   * Message used to the dissociate collection to an user
