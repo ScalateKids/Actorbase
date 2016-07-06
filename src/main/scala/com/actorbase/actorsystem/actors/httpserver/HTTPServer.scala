@@ -82,6 +82,7 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
     var dataShard = Map.empty[String, Array[Byte]]
     var usersmap = Map.empty[String, String]
     //var contributors = Map.empty[String, List[(String, Boolean)]]
+    var collections = Map.empty[ActorbaseCollection, String]
     var data = Queue.empty[(ActorbaseCollection, Map[String, Array[Byte]])]
     log.debug("LOADING ......... ")
     if (root.exists && root.isDirectory) {
@@ -93,8 +94,9 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
               val metaData = CryptoUtils.decrypt[Map[String, String]](config getString "encryption-key", meta)
               metaData get "collection" map (c => name = c)
               metaData get "owner" map (o => owner = o)
-              main ! CreateCollection(owner, ActorbaseCollection(name, owner))
-              authProxy ! InitContributor(main)
+              collections += ( ActorbaseCollection(name, owner) -> owner)
+//              main ! CreateCollection(owner, ActorbaseCollection(name, owner))
+  //            authProxy ! InitContributor(main)
             case user if (user.getName == "usersdata.shadow") =>
               usersmap ++= CryptoUtils.decrypt[Map[String, String]](config getString "encryption-key", user)
             //case contributor if (contributor.getName == "contributors.shadow") =>
@@ -110,6 +112,11 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
       //authProxy ! Clean
 
       usersmap map ( x => authProxy ! Init(x._1, x._2) )
+
+      collections map ( x => 
+        main ! CreateCollection(x._2, x._1)
+      )  
+      authProxy ! InitContributor(main)
 
 /*      case contributor if (contributor.getName == "contributors.shadow") =>
         contributors ++= CryptoUtils.decrypt[Map[String, List[(String, Boolean)]]](config getString "encryption-key", contributor)
