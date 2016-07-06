@@ -71,12 +71,12 @@ class Storekeeper(private val collectionName: String,
   private val warehouseman = context.actorOf(Warehouseman.props( collectionOwner + collectionName ))
   private var manager: Option[ActorRef] = None
   private var checked = false
-  private val cluster = Cluster(context.system)
+  // private val cluster = Cluster(context.system)
 
   warehouseman ! Init( collectionName, collectionOwner)
 
-  override def preStart(): Unit = cluster.subscribe(self, classOf[MemberUp])
-  override def postStop(): Unit = cluster.unsubscribe(self)
+  // override def preStart(): Unit = cluster.subscribe(self, classOf[MemberUp])
+  // override def postStop(): Unit = cluster.unsubscribe(self)
 
   override val supervisorStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {

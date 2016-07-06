@@ -92,8 +92,6 @@ class AuthActor extends Actor with ActorLogging {
     * with a default Set of Profiles, letting him receive a variety of messages
     * explained in the running method scaladoc
     */
-  /*override def receive = running(Set[Profile](Profile("admin", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection]),
-   Profile("anonymous", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection])))*/
   override def receive = running(Set[Profile](Profile("anonymous", "Actorb4se".bcrypt(generateSalt), Set.empty[ActorbaseCollection])))
 
   /**
