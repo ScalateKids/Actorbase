@@ -49,7 +49,7 @@ class Warehouseman(collectionUUID: String = "namecollection-owner") extends Acto
   private val rootFolder = config getString "save-folder"
 
   override def postStop: Unit = {
-    log.info("Cleaning directory")
+    log.debug("Cleaning directory")
     new File(rootFolder + collectionUUID + "/" + wareUUID + ".actb").delete()
     new File(rootFolder + collectionUUID + "/collection-meta.actbmeta").delete()
   }
@@ -86,7 +86,7 @@ class Warehouseman(collectionUUID: String = "namecollection-owner") extends Acto
         * @param map a Map containing key-values to persist to disk
         */
       case Save(map) =>
-        log.info("warehouseman: save " + rootFolder + collectionUUID + "/" + wareUUID + ".actb")
+        log.debug("warehouseman: save " + rootFolder + collectionUUID + "/" + wareUUID + ".actb")
         val key = config getString("encryption-key")
         val encryptedShardFile = new File(rootFolder + collectionUUID + "/" + wareUUID + ".actb")
         encryptedShardFile.getParentFile.mkdirs
@@ -100,7 +100,7 @@ class Warehouseman(collectionUUID: String = "namecollection-owner") extends Acto
         * @param f an encrypted file containing the shard of the collection
         */
       case Read(f) =>
-        log.info("warehouseman: read")
+        log.debug("warehouseman: read")
         val key = config getString("encryption-key")
         val m = CryptoUtils.decrypt[Map[String, Any]](key, f)
         sender ! m // ok reply
@@ -111,7 +111,7 @@ class Warehouseman(collectionUUID: String = "namecollection-owner") extends Acto
         * @param range a KeyRange representing the range of the file to delete
         */
       case Clean =>
-        log.info("Cleaning directory")
+        log.debug("Cleaning directory")
         new File(rootFolder + collectionUUID + "/" + wareUUID + ".actb").delete()
         new File(rootFolder + collectionUUID + "/collection-meta.actbmeta").delete()
 

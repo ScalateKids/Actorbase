@@ -83,7 +83,7 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
     var usersmap = Map.empty[String, String]
     var contributors = Map.empty[String, List[(String, Boolean)]]
     var data = Queue.empty[(ActorbaseCollection, Map[String, Array[Byte]])]
-    log.info("LOADING ......... ")
+    log.debug("LOADING ......... ")
     if (root.exists && root.isDirectory) {
       var (name, owner) = ("", "")
       root.listFiles.filter(_.isDirectory).foreach { x =>
@@ -135,7 +135,7 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
       }
 
     } else {
-      log.warning("Directory not found!")
+      log.debug("Directory not found!")
       import com.github.t3hnar.bcrypt._
       authProxy ! Init("admin", "Actorb4se".bcrypt(generateSalt))
     }

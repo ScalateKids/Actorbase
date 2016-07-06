@@ -124,22 +124,14 @@ class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorR
         * updating the value)
         *
         */
-      case ins: Insert =>
-        val uuid = collection.getUUID
-        // storekeepers forward (ConsistentHashableEnvelope(message = InsertItem(self, ins.key, ins.value, uuid, ins.update), hashKey = ins.key))
-        storekeepers forward InsertItem(self, ins.key, ins.value, ins.update)
+      case ins: Insert => storekeepers forward InsertItem(self, ins.key, ins.value, ins.update)
 
       /**
         * Message that forward to Storekeeper in order to retrieve a given key
         *
         * @param key a String representing the key of the item to be retrieved
         */
-      case Get(key) =>
-        // println("SF: get "+key+" from "+collection)
-        val uuid = collection.getUUID
-        // storekeepers forward (ConsistentHashableEnvelope(message = GetItem(key, uuid), hashKey = key))
-
-        storekeepers forward GetItem(key)
+      case Get(key) => storekeepers forward GetItem(key)
 
       /**
         * Message that returns the entire collection mapped by this Storefinder

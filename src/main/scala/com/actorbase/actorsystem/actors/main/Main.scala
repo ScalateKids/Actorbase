@@ -133,7 +133,7 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
     else {
       if (collection.getOwner != "admin")
         authProxy ! AddCollectionTo("admin", collection, ReadWrite)
-      // log.info(s"creating ${collection.getName} for ${collection.getOwner}")
+      log.debug(s"creating ${collection.getName} for ${collection.getOwner}")
       val sf = context.actorOf(Storefinder.props(collection, authProxy))
       sfMap += (collection -> sf)
       authProxy ! AddCollectionTo(collection.getOwner, collection, ReadWrite)
@@ -181,7 +181,7 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
         * updating the value)
         */
       case InsertTo(requester, collection, key, value, update) =>
-          // log.info("MAIN: got work!")
+          log.debug("MAIN: got work!")
           sfMap.find(x => x._1 == collection) map { c =>
             if (requester == c._1.getOwner || c._1.containsReadWriteContributor(requester))
               c._2 forward Insert(key, value, update)
@@ -254,11 +254,10 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
         requestMap.find(_._1 == requester) map { ref =>
           ref._2.find(_._1 == collection.getUUID) map { colMap =>
             colMap._2 ++= items
-            // log.info(s"${colMap._2.size} - ${collection.getSize}")
+            log.debug(s"${colMap._2.size} - ${collection.getSize}")
             if (colMap._2.size == collection.getSize) {
               val k = colMap._2.toMap mapValues (v => CryptoUtils.bytesToAny(v))
               clientRef ! Right(MapResponse(collection.getOwner, collection.getName, extractContributors(collection),  k))
-              // clientRef ! Right(MapResponse(collection.getOwner, collection.getName, extractContributors(collection), colMap._2.toMap))
               colMap._2.clear
               ref._2.-(collection.getUUID)
             }

@@ -154,7 +154,7 @@ class AuthActor extends Actor with ActorLogging {
         * Persist data to disk using a defined encryption algorithm
         */
       case Save => {
-        println("SAVING \n\n")
+        log.debug("SAVING \n\n")
         persist(profiles)
       }
 
@@ -166,7 +166,7 @@ class AuthActor extends Actor with ActorLogging {
         * @param password a String representing the password of the user
         */
       case Init(username, password) =>{
-        println("initing "+username)
+        log.debug("initing "+username)
         context become running (profiles + Profile(username, password, Set.empty[ActorbaseCollection]))
       }
 
