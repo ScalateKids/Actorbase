@@ -151,7 +151,7 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
       authProxy ! Init("admin", "Actorb4se".bcrypt(generateSalt))
     }
 
-    // authProxy ! Save
+    authProxy ! Save
 
   }
 
