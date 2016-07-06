@@ -172,7 +172,7 @@ class AuthActor extends Actor with ActorLogging {
 
       case InitContributor(main) =>
         var contributors = Map.empty[String, List[(String, Boolean)]]
-        contributors ++= CryptoUtils.decrypt[Map[String, List[(String, Boolean)]]](config getString "encryption-key", new java.io.File(rootFolder+"contributors.shadow"))
+        contributors ++= CryptoUtils.decrypt[Map[String, List[(String, Boolean)]]](config getString "encryption-key", new java.io.File(rootFolder+"/contributors.shadow"))
         contributors.foreach {
           case (k, v) =>
             v.foreach { item =>

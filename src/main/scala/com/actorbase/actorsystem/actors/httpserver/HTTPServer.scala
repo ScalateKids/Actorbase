@@ -81,7 +81,7 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
     val root = new File(config getString "save-folder")
     var dataShard = Map.empty[String, Array[Byte]]
     var usersmap = Map.empty[String, String]
-    //var contributors = Map.empty[String, List[(String, Boolean)]]
+    var contributors = Map.empty[String, List[(String, Boolean)]]
     var collections = Map.empty[ActorbaseCollection, String]
     var data = Queue.empty[(ActorbaseCollection, Map[String, Array[Byte]])]
     log.debug("LOADING ......... ")
@@ -99,7 +99,7 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
   //            authProxy ! InitContributor(main)
             case user if (user.getName == "usersdata.shadow") =>
               usersmap ++= CryptoUtils.decrypt[Map[String, String]](config getString "encryption-key", user)
-            //case contributor if (contributor.getName == "contributors.shadow") =>
+            case contributor if (contributor.getName == "contributors.shadow") =>
               //contributors ++= CryptoUtils.decrypt[Map[String, List[(String, Boolean)]]](config getString "encryption-key", contributor)
             case _ => dataShard ++= CryptoUtils.decrypt[Map[String, Array[Byte]]](config getString "encryption-key", x)
           }
