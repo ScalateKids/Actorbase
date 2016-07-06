@@ -162,7 +162,7 @@ class ClientActor(main: ActorRef, authProxy: ActorRef) extends Actor with ActorL
     * stop this actor
     */
   def handleHttpRequests: Receive = {
-    case _: Http.ConnectionClosed => Try(self ! PoisonPill)
+    case _: Http.ConnectionClosed => Try(context.stop(self))
   }
 
   /**
