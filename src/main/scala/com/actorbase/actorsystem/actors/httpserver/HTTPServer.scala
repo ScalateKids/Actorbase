@@ -114,7 +114,7 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
       usersmap map ( x => authProxy ! Init(x._1, x._2) )
 
       collections map ( x => 
-        main ! CreateCollection(x._2, x._1)
+        main ! CreateCollection(x._2, x._1, false)
       )  
       authProxy ! InitContributor(main)
 
