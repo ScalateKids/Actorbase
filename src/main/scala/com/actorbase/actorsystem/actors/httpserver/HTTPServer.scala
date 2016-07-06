@@ -29,7 +29,8 @@
 
 package com.actorbase.actorsystem.actors.httpserver
 
-import akka.actor.{Actor, ActorSystem, ActorLogging, ActorRef, PoisonPill, Props, Terminated}
+import akka.actor.{Actor, ActorSystem, ActorLogging, ActorRef, PoisonPill, Props, Terminated, OneForOneStrategy}
+import akka.actor.SupervisorStrategy._
 import akka.io.IO
 import spray.can.Http
 import akka.event.LoggingReceive
@@ -68,6 +69,14 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
   IO(Http)(system) ! Http.Bind(self, interface = address, port = listenPort)
 
   val initLoad: Unit = loadData
+
+  /**
+    * Method that overrides the supervisorStrategy method.
+    */
+  override val supervisorStrategy =
+    OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+      case _: Exception => Resume
+    }
 
   /**
     * Loads all the data saved on the rootfolder onto the system. This is used to repopulate

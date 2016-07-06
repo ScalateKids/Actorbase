@@ -28,7 +28,8 @@
 
 package com.actorbase.actorsystem.actors.clientactor
 
-import akka.actor.{ Actor, ActorLogging, ActorRef }
+import akka.actor.{ Actor, ActorLogging, ActorRef, OneForOneStrategy}
+import akka.actor.SupervisorStrategy._
 import akka.pattern.ask
 import scala.util.{ Failure, Success }
 import spray.can.Http
@@ -46,6 +47,14 @@ import com.actorbase.actorsystem.messages.AuthActorMessages._
   * to fullfil it
   */
 class ClientActor(main: ActorRef, authProxy: ActorRef) extends Actor with ActorLogging with CollectionApi {
+  /**
+    * Method that overrides the supervisorStrategy method.
+    */
+  override val supervisorStrategy =
+    OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+      case _: Exception => Resume
+    }
+
   /**
     * Check permission of the username
     *
