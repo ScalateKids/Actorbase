@@ -80,7 +80,7 @@ final case class RemoveFrom(requester: String, uuid: String, key: String = "") e
   * @param permission the permission of the new user in the collection
   * @param uuid the id of the collection where the collaborator will added
   */
-final case class AddContributor(requester: String, username: String, permission: Permissions, uuid: String) extends MainMessage
+final case class AddContributor(requester: String, username: String, permission: Permissions, uuid: String, persist: Boolean = true) extends MainMessage
 
 /**
   * Message used to remove contributor from a collection
