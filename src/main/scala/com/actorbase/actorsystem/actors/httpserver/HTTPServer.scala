@@ -29,12 +29,10 @@
 
 package com.actorbase.actorsystem.actors.httpserver
 
-import akka.actor.{Actor, ActorSystem, ActorLogging, ActorRef, PoisonPill, Props, Terminated, OneForOneStrategy, DeathPactException}
-import akka.actor.SupervisorStrategy._
+import akka.actor.{Actor, ActorSystem, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.io.IO
 import spray.can.Http
 import akka.event.LoggingReceive
-import scala.concurrent.duration._
 
 import akka.cluster.singleton.{ClusterSingletonManager, ClusterSingletonManagerSettings, ClusterSingletonProxy, ClusterSingletonProxySettings}
 import akka.cluster._
@@ -70,15 +68,6 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
   IO(Http)(system) ! Http.Bind(self, interface = address, port = listenPort)
 
   val initLoad: Unit = loadData
-
-  /**
-    * Method that overrides the supervisorStrategy method.
-    */
-  override val supervisorStrategy =
-    OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
-      case d:DeathPactException => Resume
-      case _: Exception => Resume
-    }
 
   /**
     * Loads all the data saved on the rootfolder onto the system. This is used to repopulate
@@ -165,8 +154,6 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
       val serverConnection = sender()
       val handler = context.actorOf(Props(new ClientActor(main, authProxy)))
       serverConnection ! Http.Register(handler)
-
-    case Terminated(_) =>
   }
 
 }
