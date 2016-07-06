@@ -29,7 +29,7 @@
 
 package com.actorbase.actorsystem.actors.httpserver
 
-import akka.actor.{Actor, ActorSystem, ActorLogging, ActorRef, PoisonPill, Props, Terminated, OneForOneStrategy}
+import akka.actor.{Actor, ActorSystem, ActorLogging, ActorRef, PoisonPill, Props, Terminated, OneForOneStrategy, DeathPactException}
 import akka.actor.SupervisorStrategy._
 import akka.io.IO
 import spray.can.Http
@@ -76,6 +76,7 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
     */
   override val supervisorStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+      case d:DeathPactException => Resume
       case _: Exception => Resume
     }
 
