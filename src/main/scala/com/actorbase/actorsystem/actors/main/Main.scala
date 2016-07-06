@@ -79,7 +79,7 @@ object Main {
     * @return a String representing an UUID of a shard-region where the actor belongs to
     */
   val extractShardId: ExtractShardId = {
-    case CreateCollection(_, collection) => (collection.getUUID.hashCode % numberOfShards).toString
+    case CreateCollection(_, collection, _) => (collection.getUUID.hashCode % numberOfShards).toString
     case RemoveFrom(_, uuid, _) => (uuid.hashCode % numberOfShards).toString
     case InsertTo(_,collection, _, _, _) => (collection.getUUID.hashCode % numberOfShards).toString
     case GetFrom(_,collection, _) => (collection.getUUID.hashCode % numberOfShards).toString
@@ -127,16 +127,16 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
     * @param collection an ActorbaseCollection representing the collection that needs to be created
     * @return an ActorRef pointing to the Storefinder just created that maps the collection
     */
-  private def createCollection(collection: ActorbaseCollection): Option[ActorRef] = {
+  private def createCollection(collection: ActorbaseCollection, persist: Boolean = true): Option[ActorRef] = {
     if (sfMap.contains(collection))
       sfMap get collection
     else {
       if (collection.getOwner != "admin")
-        authProxy ! AddCollectionTo("admin", collection, ReadWrite)
+        authProxy ! AddCollectionTo("admin", collection, ReadWrite, persist)
       log.debug(s"creating ${collection.getName} for ${collection.getOwner}")
       val sf = context.actorOf(Storefinder.props(collection, authProxy))
       sfMap += (collection -> sf)
-      authProxy ! AddCollectionTo(collection.getOwner, collection, ReadWrite)
+      authProxy ! AddCollectionTo(collection.getOwner, collection, ReadWrite, persist)
       Some(sf)
     }
   }
@@ -198,9 +198,9 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
         * @param name a String representing the name of the collection
         * @param owner a String representing the owner of the collection
         */
-      case CreateCollection(requester, collection) =>
+      case CreateCollection(requester, collection, persist) =>
           if (requester == "admin" || requester == collection.getOwner) {
-            createCollection(collection)
+            createCollection(collection, persist)
             sender ! "OK"
           } else sender ! "NoPrivileges"
 

@@ -94,4 +94,4 @@ final case class RemoveContributor(requester: String, username: String, uuid: St
   * Message used to create a new collection in actorbase
   * @param collection the new collection that will be added to actorbase system
   */
-final case class CreateCollection(requester: String, collection: ActorbaseCollection) extends MainMessage
+final case class CreateCollection(requester: String, collection: ActorbaseCollection, persist: Boolean = true) extends MainMessage
