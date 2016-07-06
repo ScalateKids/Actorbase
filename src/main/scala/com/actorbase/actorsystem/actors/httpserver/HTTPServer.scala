@@ -154,8 +154,6 @@ class HTTPServer(main: ActorRef, authProxy: ActorRef, address: String, listenPor
       val serverConnection = sender()
       val handler = context.actorOf(Props(new ClientActor(main, authProxy)))
       serverConnection ! Http.Register(handler)
-
-    // case Terminated(_) =>
   }
 
 }

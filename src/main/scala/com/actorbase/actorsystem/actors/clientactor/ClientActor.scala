@@ -161,7 +161,7 @@ class ClientActor(main: ActorRef, authProxy: ActorRef) extends Actor with ActorL
     * stop this actor
     */
   def handleHttpRequests: Receive = {
-    case _: Http.ConnectionClosed => context.stop(self)
+    case _: Http.ConnectionClosed => Try(context.stop(self))
   }
 
   /**
@@ -172,6 +172,7 @@ class ClientActor(main: ActorRef, authProxy: ActorRef) extends Actor with ActorL
   /**
     * Overrides of the receive method of the Akka Actor class
     */
-  override def receive = handleHttpRequests orElse httpReceive
+  override def receive = // handleHttpRequests orElse
+  httpReceive
 
 }
