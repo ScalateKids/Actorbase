@@ -32,10 +32,8 @@ import akka.actor.{ Actor, ActorLogging, ActorRef }
 import akka.pattern.ask
 import scala.util.{ Failure, Success }
 import spray.can.Http
-// import spray.http.HttpHeader
 import spray.httpx.SprayJsonSupport._
 
-// import scala.concurrent.duration._
 import scala.util.Try
 
 import com.actorbase.actorsystem.messages.ClientActorMessages.ListResponse
@@ -163,7 +161,7 @@ class ClientActor(main: ActorRef, authProxy: ActorRef) extends Actor with ActorL
     * stop this actor
     */
   def handleHttpRequests: Receive = {
-    case _: Http.ConnectionClosed => Try(context.stop(self))
+    case _: Http.ConnectionClosed => context.stop(self)
   }
 
   /**
