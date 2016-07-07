@@ -57,7 +57,8 @@ akka.loglevel = "OFF"
 
     val collName = "testCollection"
     val collOwner = "testOwner"
-    val skRef = TestActorRef(new Storekeeper( collName, collOwner, 10 ))
+    val saveMethod = "snapshot"
+    val skRef = TestActorRef(new Storekeeper( collName, collOwner, saveMethod, 10 ))
     val mnRef = TestActorRef(new Manager( collName, collOwner, skRef ))
 
     val p = TestProbe()

@@ -65,7 +65,8 @@ akka.loglevel = "OFF"
 
     val collName = "testName"
     val collOwner = "testOwner"
-    val skRef = TestActorRef(new Storekeeper( collName, collOwner, 256 ))
+    val saveMethod = "snapshot"
+    val skRef = TestActorRef(new Storekeeper( collName, collOwner, saveMethod, 256 ))
     val actbColl = new ActorbaseCollection( collName, collOwner)
     val authRef = TestActorRef(new AuthActor)
     val sfRef = TestActorRef(new Storefinder( actbColl, authRef ))
