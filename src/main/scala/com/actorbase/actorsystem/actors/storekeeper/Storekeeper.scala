@@ -134,7 +134,7 @@ class Storekeeper(private val collectionName: String,
       case RemoveItem(parent, key) =>
         if (data contains(key)) {
           var w = 0L
-          data get key map (w += _.length + key.getBytes("UTF-8").length.toLong)
+          data get key map (w += _.length.toLong + key.getBytes("UTF-8").length.toLong)
           parent ! UpdateCollectionSize(w, false)
           sender ! "OK"
           if (saveMethod == "onchange")
