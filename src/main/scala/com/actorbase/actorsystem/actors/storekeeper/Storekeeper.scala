@@ -118,7 +118,7 @@ class Storekeeper(private val collectionName: String,
         */
       case GetItem(key)  =>
         data get key map (v => sender ! Right(Response(CryptoUtils.bytesToAny(v)))) getOrElse sender ! Left("UndefinedKey")
-        log.debug("SK "+data.contains(key)+" of collection "+collectionName+"With data \n"+data)
+        // log.debug("SK "+data.contains(key)+" of collection "+collectionName+"With data \n"+data)
 
       /**
         * GetAllItem message, this actor will send back the collection name and all the collection.
@@ -153,7 +153,6 @@ class Storekeeper(private val collectionName: String,
         *
         */
       case ins: InsertItem =>
-        log.debug("SK inserting "+ins.key+" of collection "+collectionName+"With data \n"+data)
         /**
           * private method that insert an item to the collection, can allow the update of the item or not
           * changing the param update
@@ -181,7 +180,7 @@ class Storekeeper(private val collectionName: String,
           * this is full
           */
         def insertWithoutUpdate: Unit = {
-          log.debug("SK: Got work!")
+          // log.debug("SK: Got work!")
           val w = ins.value.length.toLong + ins.key.getBytes("UTF-8").length.toLong
           ins.parentRef ! UpdateCollectionSize(w, true)
           if (data.size > indicativeSize && !checked) {

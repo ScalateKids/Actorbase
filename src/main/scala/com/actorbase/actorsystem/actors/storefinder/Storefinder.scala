@@ -33,14 +33,8 @@ import akka.actor.{ Actor, ActorLogging, ActorRef, OneForOneStrategy, Props }
 
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent.MemberUp
-import akka.cluster.routing.ClusterRouterPool
 
-import akka.cluster.routing.ClusterRouterGroup
-import akka.cluster.routing.ClusterRouterGroupSettings
-
-import akka.cluster.routing.ClusterRouterPoolSettings
 import akka.routing.ConsistentHashingPool
-import akka.routing.ConsistentHashingGroup
 import akka.routing.Broadcast
 import akka.actor.SupervisorStrategy._
 import com.actorbase.actorsystem.messages.StorefinderMessages._
@@ -70,7 +64,6 @@ object Storefinder {
   * @param maxSize represent the max size of the collection
   */
 class Storefinder(private var collection: ActorbaseCollection, authProxy: ActorRef) extends Actor with ActorLogging {
-
   // val cluster = Cluster(context.system)
   val config = ConfigFactory.load().getConfig("storekeepers")
   val role =

@@ -30,7 +30,6 @@ package com.actorbase.actorsystem.messages.StorekeeperMessages
 
 import akka.actor.ActorRef
 import akka.dispatch.ControlMessage
-// import akka.routing.ConsistentHashingRouter.ConsistentHashable
 
 /**
   * Trait defining a generic storekeeper actor dedicated message
@@ -59,7 +58,7 @@ final case class GetAll(parent: ActorRef, requester: String) extends Storekeeper
   * @param key key of the requested data
   */
 final case class GetItem(key: String) extends StorekeeperMessage
-// final case class GetItem(key: String, uuid: String) extends ConsistentHashable with StorekeeperMessage {
+// final case class GetItem(key: String) extends ConsistentHashable with StorekeeperMessage {
 //   override def consistentHashKey: Any = key
 // }
 
@@ -71,7 +70,7 @@ final case class GetItem(key: String) extends StorekeeperMessage
   * @param update boolean flag to allow o deny data overwrite (true = allow ; false = deny)
   */
 final case class InsertItem(parentRef: ActorRef, key: String, value: Array[Byte], update: Boolean = false) extends StorekeeperMessage
-// final case class InsertItem(parentRef: ActorRef, key: String, value: Array[Byte], uuid:String, update: Boolean = false) extends ConsistentHashable with StorekeeperMessage {
+// final case class InsertItem(parentRef: ActorRef, key: String, value: Array[Byte], update: Boolean = false) extends ConsistentHashable with StorekeeperMessage {
 //   override def consistentHashKey: Any = key
 // }
 
