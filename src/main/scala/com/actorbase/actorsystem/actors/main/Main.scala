@@ -133,7 +133,7 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
     else {
       if (collection.getOwner != "admin")
         authProxy ! AddCollectionTo("admin", collection, ReadWrite, persist)
-      // log.debug(s"creating ${collection.getName} for ${collection.getOwner}")
+      log.debug(s"creating ${collection.getName} for ${collection.getOwner}")
       val sf = context.actorOf(Storefinder.props(collection, authProxy))
       sfMap += (collection -> sf)
       authProxy ! AddCollectionTo(collection.getOwner, collection, ReadWrite, persist)
@@ -181,7 +181,7 @@ class Main(authProxy: ActorRef) extends Actor with ActorLogging {
         * updating the value)
         */
       case InsertTo(requester, collection, key, value, update) =>
-        // log.debug("MAIN: got work!")
+        log.debug("MAIN: got work!")
         sfMap.find(x => x._1 == collection) map { c =>
           if (requester == c._1.getOwner || c._1.containsReadWriteContributor(requester))
             c._2 forward Insert(key, value, update)
